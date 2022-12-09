@@ -8,35 +8,30 @@ TCHAR* ClipboardOutptText2();
 
 int ClipboardInputText(LPWSTR buffer)
 {
-	DWORD len; // переменная под длину сообщения
+	DWORD mess; 
 	HANDLE hMen; // дескриптор глобальной области памяти 
-	len = wcslen(buffer) + 1; //(количество символов) вычисление длины в юникоде (+1  строка должна заканчивать нулевым символом)
-	// задаем дескриптор
-	// Global - выделяем память в глобальной области видимости, чтобы память была видна за пределами программы
-	hMen = GlobalAlloc(GMEM_MOVEABLE, len * sizeof(LPWSTR));
-	//memcpy - функция копирования в памяти (копируем то что в буфере в глобадьрную область памяти)
-	// GlobalLock - фиксирует эту память (зарезервировать)
-	// buffer - содержимое строки, затем сколько байт копируем туда
-	memcpy(GlobalLock(hMen), buffer, len * sizeof(LPWSTR)); // копируем область памяти из buffer в hMen 
-	GlobalUnlock(hMen); // разблокировать содержимое этой памяти(сделать доступным для дргуих программ - для системного буфера)
-	OpenClipboard(0); // откр буфер обмена - код 0 значит в режиме по умолч
-	EmptyClipboard(); // очистить буфер обмена - чтоб не было лишнего, толбко свое
+	mess = wcslen(buffer) + 1; //(количество символов) вычисление длины в юникоде (+1  строка должна заканчивать нулевым символом)	
+	hMen = GlobalAlloc(GMEM_MOVEABLE, mess * sizeof(LPWSTR));// Global - выделяем память в глобальной области видимости, чтобы память была видна за пределами программы
+	//memcpy - функция копирования в памяти
+	// GlobalLock - фиксирует выделенную память
+	memcpy(GlobalLock(hMen), buffer, mess * sizeof(LPWSTR)); 
+	GlobalUnlock(hMen); // делаем содержимое доступным 
+	OpenClipboard(0); // открываем буфер обмена 
+	EmptyClipboard(); // очиска буфера обмена
 	//CF_UNICODETEXT - что кладем (юникод текст - тип), hMen - что записываем (дискриптор нашей глобальной области памяти передем)
-	SetClipboardData(CF_UNICODETEXT, hMen); // записать в буфер данные соответсвующего типа
+	SetClipboardData(CF_UNICODETEXT, hMen);
 	CloseClipboard(); // закрыть буфер, сделав его доступным для других проложений
 	return 0;
 }
 
 int ClipboardOutptText() // из буфера тест помещается в некий дискриптор глобальной области памяти
 {
-	LPWSTR Mess = NULL; // переменна, которая выводится в мессэдж бокс (по умолчанию нуль )
-	OpenClipboard(NULL); // открыть буфер обмена - код NULL значит в режиме по умолч
-	// присваиваем значение, в кафестве аргумента тип
-	HANDLE hClipboardData = GetClipboardData(CF_UNICODETEXT); // записать в буфер обмена данные соответствующего типа
+	LPWSTR Mess = NULL; // переменна, которая для вывода в MessageBox
+	OpenClipboard(NULL); // открыть буфер обмена - код NULL в режиме по умолчанию
+	HANDLE hClipboardData = GetClipboardData(CF_UNICODETEXT);
 	Mess = (LPWSTR)GlobalLock(hClipboardData); // считать из глобального участка памяти, привести это в к строке (LPWSTR) и поместить в строку Messege
-	// скопировали , память нам не нужна можно ее разблокировать
-	GlobalUnlock(hClipboardData); // освободдить глобальный участок памяти
-	CloseClipboard(); // закрыть буфер обмена, сделать его доступнымдля других прил
+	GlobalUnlock(hClipboardData); 
+	CloseClipboard();// делаем буфер доступным для других приложений
 	MessageBox(NULL, Mess, L"Содержимое буфера", MB_OK);
 	return 0;
 }
@@ -55,35 +50,32 @@ TCHAR* ClipboardOutptText2()
 
 int main()
 {
-	//Обмен данными между приложением word и программой WinAPI
-	//LPWSTR Message = L"Текст"; //строка сообщения
-	//ClipboardInputText(Message); // положить текст в буфер обмена
-	//ClipboardOutptText();// получить текст из буфера
+	////Обмен данными между приложением word и программой WinAPI
+	//LPWSTR Message = L"Текст для записи в буфер и дальнейшего копирования в Word"; 
+	//ClipboardInputText(Message);
+	//ClipboardOutptText();
 
-	//запрет копирования из системного буфера обмена
+	////запрет копирования из системного буфера обмена
 	//while (TRUE) 
 	//{
 	//	LPSTR Data = ClipboardOutptText2(); // указатель дата - вызов функции
-	//	TCHAR Alert[] = L"Нарушение авторских прав при копировнаие текста: "; // первая строка для бокса
+	//	TCHAR Alert[] = L"Нарушение авторских прав при копировнаие текста: "; // первая строка для MessageBox
 	//	TCHAR third[512]; // ограничение на длину символов - 1 мб
-	//	// склеить строки (указатели) Alert + Data 0
-	//	//аналог принта, только не на консоль, а в переменную записывает, рабоатет в юникодом
-	//	// sizeof - выдел памяти, L - формат, указатель на юникод
 	//	swprintf(third, sizeof third, L"%s%s", Alert, Data);
 	//	if (*Data != 0) // если не пустая строка
 	//	{
-	//		MessageBox(NULL, &third, L"Нарушение!!", MB_OK | MB_ICONASTERISK);
+	//		MessageBox(NULL, &third, L"Выявлено нарушение", MB_OK | MB_ICONASTERISK);
 	//		ClipboardInputText(""); // очищаем буфер 
 	//	}
-	//	Sleep(1000); // ждать 1 сек
+	//	Sleep(1000); 
 	//}
 
 
 
 	//при копировании цифры в системный буфер обмена выводить в буфер ее словесное описание
-	while (TRUE) // не напряжный цикл 
+	while (TRUE) 
 	{
-		// 1 2 3 4 5 6 7 8 9 четыре шесть четыре четыре напряжный цикл  девять восемь семь шесть пять четыре три 2 два один два
+		// 0 1 2 3 4 5 6 7 8 9 
 
 		LPSTR Data = ClipboardOutptText2();
 		if (*Data != 0) // если не пустая строка
@@ -124,7 +116,7 @@ int main()
 				ClipboardInputText(Data);
 				break;
 			}
-			//
+			
 			//if (*Data == '0') // если не пустая строка
 			//{
 			//	swprintf(third, sizeof third, L"%s%s", Alert, L"ноль");
