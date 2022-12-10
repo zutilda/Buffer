@@ -5,16 +5,21 @@
 int ClipboardInputText(LPWSTR buffer);
 int ClipboardOutptText();
 TCHAR* ClipboardOutptText2();
+LPSTR Data;
+LPWSTR result;
+DWORD str;
+LPWSTR res;
+TCHAR* arr;
 
 int ClipboardInputText(LPWSTR buffer)
 {
-	DWORD mess; 
+	DWORD mess;
 	HANDLE hMen; // дескриптор глобальной области памяти 
-	mess = wcslen(buffer) + 1; //(количество символов) вычисление длины в юникоде (+1  строка должна заканчивать нулевым символом)	
+	mess = wcslen(buffer) + 1;
 	hMen = GlobalAlloc(GMEM_MOVEABLE, mess * sizeof(LPWSTR));// Global - выделяем память в глобальной области видимости, чтобы память была видна за пределами программы
 	//memcpy - функция копирования в памяти
 	// GlobalLock - фиксирует выделенную память
-	memcpy(GlobalLock(hMen), buffer, mess * sizeof(LPWSTR)); 
+	memcpy(GlobalLock(hMen), buffer, mess * sizeof(LPWSTR));
 	GlobalUnlock(hMen); // делаем содержимое доступным 
 	OpenClipboard(0); // открываем буфер обмена 
 	EmptyClipboard(); // очиска буфера обмена
@@ -30,7 +35,7 @@ int ClipboardOutptText() // из буфера тест помещается в некий дискриптор глобаль
 	OpenClipboard(NULL); // открыть буфер обмена - код NULL в режиме по умолчанию
 	HANDLE hClipboardData = GetClipboardData(CF_UNICODETEXT);
 	Mess = (LPWSTR)GlobalLock(hClipboardData); // считать из глобального участка памяти, привести это в к строке (LPWSTR) и поместить в строку Messege
-	GlobalUnlock(hClipboardData); 
+	GlobalUnlock(hClipboardData);
 	CloseClipboard();// делаем буфер доступным для других приложений
 	MessageBox(NULL, Mess, L"Содержимое буфера", MB_OK);
 	return 0;
@@ -69,114 +74,101 @@ int main()
 	//	}
 	//	Sleep(1000); 
 	//}
-
-
-
+	Data = ClipboardOutptText2();
+	str = wcslen(Data) + 1;	
+	arr = calloc(str, sizeof(TCHAR));
+	DWORD k;
+	res = calloc(512, sizeof(TCHAR));
 	//при копировании цифры в системный буфер обмена выводить в буфер ее словесное описание
-	while (TRUE) 
+	while (TRUE)
 	{
-		// 0 1 2 3 4 5 6 7 8 9 
-
-		LPSTR Data = ClipboardOutptText2();
+		// 0 1 2 3 4 5 6 7 8 9 	0123	
 		if (*Data != 0) // если не пустая строка
 		{
-			switch (*Data)
-			{
-			case '0':
-				ClipboardInputText(L"ноль");
-				break;
-			case '1':
-				ClipboardInputText(L"один");
-				break;
-			case '2':
-				ClipboardInputText(L"два");
-				break;
-			case '3':
-				ClipboardInputText(L"три");
-				break;
-			case '4':
-				ClipboardInputText(L"четыре");
-				break;
-			case '5':
-				ClipboardInputText(L"пять");
-				break;
-			case '6':
-				ClipboardInputText(L"шесть");
-				break;
-			case '7':
-				ClipboardInputText(L"семь");
-				break;
-			case '8':
-				ClipboardInputText(L"восемь");
-				break;
-			case '9':
-				ClipboardInputText(L"девять");
-				break;
-			default:
-				ClipboardInputText(Data);
-				break;
-			}
 			
-			//if (*Data == '0') // если не пустая строка
-			//{
-			//	swprintf(third, sizeof third, L"%s%s", Alert, L"ноль");
-			//	MessageBox(NULL, &third, L"Нарушение!!", MB_OK | MB_ICONASTERISK);
-			//	ClipboardInputText(L"ноль"); 
-			//}
-			//else if (*Data == '1') // если не пустая строка
-			//{
-			//	swprintf(third, sizeof third, L"%s%s", Alert, L"один");
-			//	MessageBox(NULL, &third, L"Нарушение!!", MB_OK | MB_ICONASTERISK);
-			//	ClipboardInputText(L"один"); 
-			//}
-			//else if (*Data == '2') // если не пустая строка
-			//{
-			//	swprintf(third, sizeof third, L"%s%s", Alert, L"два");
-			//	MessageBox(NULL, &third, L"Нарушение!!", MB_OK | MB_ICONASTERISK);
-			//	ClipboardInputText(L"два"); 
-			//}
-			//else if (*Data == '3') // если не пустая строка
-			//{
-			//	swprintf(third, sizeof third, L"%s%s", Alert, L"три");
-			//	MessageBox(NULL, &third, L"Нарушение!!", MB_OK | MB_ICONASTERISK);
-			//	ClipboardInputText(L"три"); 
-			//}
-			//else if (*Data == '4') // если не пустая строка
-			//{
-			//	swprintf(third, sizeof third, L"%s%s", Alert, L"четыре");
-			//	MessageBox(NULL, &third, L"Нарушение!!", MB_OK | MB_ICONASTERISK);
-			//	ClipboardInputText(L"четыре"); 
-			//}
-			//else if (*Data == '5') // если не пустая строка
-			//{
-			//	swprintf(third, sizeof third, L"%s%s", Alert, L"пять");
-			//	MessageBox(NULL, &third, L"Нарушение!!", MB_OK | MB_ICONASTERISK);
-			//	ClipboardInputText(L"пять"); 
-			//}
-			//else if (*Data == '6') // если не пустая строка
-			//{
-			//	swprintf(third, sizeof third, L"%s%s", Alert, L"шесть");
-			//	MessageBox(NULL, &third, L"Нарушение!!", MB_OK | MB_ICONASTERISK);
-			//	ClipboardInputText(L"шесть"); 
-			//}
-			//else if (*Data == '7') // если не пустая строка
-			//{
-			//	swprintf(third, sizeof third, L"%s%s", Alert, L"семь");
-			//	MessageBox(NULL, &third, L"Нарушение!!", MB_OK | MB_ICONASTERISK);
-			//	ClipboardInputText(L"семь"); 
-			//}
-			//else if (*Data == '8') // если не пустая строка
-			//{
-			//	swprintf(third, sizeof third, L"%s%s", Alert, L"восемь");
-			//	MessageBox(NULL, &third, L"Нарушение!!", MB_OK | MB_ICONASTERISK);
-			//	ClipboardInputText(L"восемь"); 
-			//}
-			//else if (*Data == '9') // если не пустая строка
-			//{
-			//	swprintf(third, sizeof third, L"%s%s", Alert, L"девять");
-			//	MessageBox(NULL, &third, L"Нарушение!!", MB_OK | MB_ICONASTERISK);
-			//	ClipboardInputText(L"девять"); 
-			//} 
+			for (size_t i = 0; i < str; i++)
+			{
+				switch (Data[i])
+				{
+				case '0':
+					result= L"ноль";					
+					k = wcslen(result) + 1;
+					arr = realloc(arr, k*sizeof(TCHAR));
+					swprintf(res, sizeof arr, L"%s ", result);
+					//ClipboardInputText(L"ноль");
+					break;
+				case '1':
+					result = L"один";
+					k = wcslen(result) + 1;
+					arr = realloc(arr, k * sizeof(TCHAR));
+					swprintf(res, sizeof arr, L"%s ", result);
+					//ClipboardInputText(L"один");
+					break;
+				case '2':
+					result = L"два";
+					k = wcslen(result) + 1;
+					arr = realloc(arr, k * sizeof(TCHAR));
+					swprintf(res, sizeof arr, L"%s ", result);
+					//ClipboardInputText(L"два");
+					break;
+				case '3':
+					result = L"три";
+					k = wcslen(result) + 1;
+					arr = realloc(arr, k * sizeof(TCHAR));
+					swprintf(res, sizeof arr, L"%s ", result);
+					//ClipboardInputText(L"три");
+					break;
+				case '4':
+					result = L"четыре";
+					k = wcslen(result) + 1;
+					arr = realloc(arr, k * sizeof(TCHAR));
+					swprintf(res, sizeof arr, L"%s ", result);
+					//ClipboardInputText(L"четыре");
+					break;
+				case '5':
+					result = L"пять";
+					k = wcslen(result) + 1;
+					arr = realloc(arr, k * sizeof(TCHAR));
+					swprintf(res, sizeof arr, L"%s ", result);
+					//ClipboardInputText(L"пять");
+					break;
+				case '6':
+					result = L"шесть";
+					k = wcslen(result) + 1;
+					arr = realloc(arr, k * sizeof(TCHAR));
+					swprintf(res, sizeof arr, L"%s ", result);
+					//ClipboardInputText(L"шесть");
+					break;
+				case '7':
+					result = L"семь";
+					k = wcslen(result) + 1;
+					arr = realloc(arr, k * sizeof(TCHAR));
+					swprintf(res, sizeof arr, L"%s ", result);
+					//ClipboardInputText(L"семь");
+					break;
+				case '8':
+					result = L"восемь";
+					k = wcslen(result) + 1;
+					arr = realloc(arr, k * sizeof(TCHAR));
+					swprintf(res, sizeof arr, L"%s ", result);
+					//ClipboardInputText(L"восемь");
+					break;
+				case '9':
+					result = L"девять";
+					k = wcslen(result) + 1;
+					arr = realloc(arr, k * sizeof(TCHAR));
+					swprintf(res, sizeof arr, L"%s ", result);
+					//ClipboardInputText(L"девять");
+					break;
+				default:
+					ClipboardInputText(Data);
+					break;
+				}
+				
+			}
+			MessageBox(NULL, &res, L"Скопированно", MB_OK | MB_ICONASTERISK);
+			/*LPWSTR res = Data;
+			ClipboardInputText(res);*/
 		}
 		Sleep(1000); // ждать 1 сек 
 	}
